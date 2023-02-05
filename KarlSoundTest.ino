@@ -9,8 +9,8 @@ const bool debugMode = true;
 
 //festlegen wo die RX/TX Pins am Arduino sind
 //TROUBLESHOOTING: Werte oder Kabel miteinander tauschen
-static const uint8_t PIN_MP3_TX   = 10; //TX (Transmit) am Arduino geht auf RX (Receive) am DFPLAYER
-static const uint8_t PIN_MP3_RX = 11; // Und anders herum
+static const uint8_t PIN_MP3_TX   = 11; //TX (Transmit) am Arduino geht auf RX (Receive) am DFPLAYER
+static const uint8_t PIN_MP3_RX = 12; // Und anders herum
 
 //SoftwareSerial Schnittstelle erstellen
 SoftwareSerial softwareSerial(PIN_MP3_RX, PIN_MP3_TX);
@@ -20,14 +20,14 @@ DFRobotDFPlayerMini player;
 
 //Welche Pins sind SensorPins für den Input (const = nicht zur Laufzeit änderbar, braucht weniger speicher)
 static const int SensorPinInput1 = 6;
-static const int SensorPinInput2 = 13;
+static const int SensorPinInput2 = 5;
 static const int SensorPinInput3 = 2;
 static const int SensorPinInput4 = 3;
-static const int SensorPinInput5 = 12;
-static const int SensorPinInput6 = 5;
-static const int SensorPinInput7 = 4;
-static const int SensorPinInput8 = 0;
-static const int SensorPinInput9 = 8;
+static const int SensorPinInput5 = 4;
+static const int SensorPinInput6 = 13;
+static const int SensorPinInput7 = A6;
+static const int SensorPinInput8 = A4;
+static const int SensorPinInput9 = A3;
 static const int SensorPinInput10 = 9;
 
 
@@ -56,19 +56,28 @@ static const int VolumePin = A0;
 static const int HeadphonePin = A2;
 
 //grenzwert zur ermittlung des Mikrofonstatus
-static const int HeadphoneThreshold = 1000;
+static const int HeadphoneThreshold = 10;
 
 //pin an dem das Relais zur Steuerung des Lautsprecheroutputs angeschlossen wird
-static const int RelayPin = A5;
+static const int RelayPin = 8;
 
 //diese variable speichert den lautstärkewert falls er zb über einen drehregler änderbar sein soll
-int volume = 30;
+int volume = 10;
 
 //globale sensitivity variable für capacitive sensors
 int sensitivity = 10;
 
 //globale grenzwert variable für das auslösen des abspielens
-int threshold = 1000;
+int threshold = 200;
+
+//speichert den zuletzt abgespielten track um doppeltes abspielen zu verhindern (-1 = nicht vorhanden, also bei init immer jeder track spielbar)
+int lastPlayed = -1;
+
+//speichert den zeitpunkt des letzten tastendruckes
+long lastPlayTime = -1;
+
+//wie lange bis ein track neu gestartet werden kann (in ms)
+int repeatPlayDelay = 3000;
 
 void setup() {
 
@@ -100,17 +109,16 @@ void setup() {
     Serial.println("Programm wird gestoppt - Fehler beheben und Resetten");
     while (1) {};
   }
-  if (debugMode) {
-    player.play(1);
-  }
 
-  //startet und eicht den kapazitiven Sensor
+  //startet und eicht die kapazitiven Sensoren
   CapSensor1.set_CS_AutocaL_Millis(0xFFFFFFFF);
 
   //Setze den RelayPin als Output pin um das Relais steuern zu können
   pinMode(RelayPin, OUTPUT);
 
   //setze relay auf "an"
+  digitalWrite(RelayPin, LOW);
+  delay(1000);
   digitalWrite(RelayPin, HIGH);
 }
 
@@ -130,23 +138,23 @@ void loop() {
 
   //lese headphonepin - wenn der headphonepin eine spannung unter dem grenzwert erkennt ist ein Kopfhörer angeschlossen
   int headphoneStatus = analogRead(HeadphonePin);
-  //Wenn der kopfhörer eingesteckt ist ... 
+  //Wenn der kopfhörer eingesteckt ist ...
   if (headphoneStatus < HeadphoneThreshold) {
-    //... schalte Relay aus - Unterbreche Verbindung des Lautsprechers 
-      digitalWrite(RelayPin, LOW);
-    
+    //... schalte Relay aus - Unterbreche Verbindung des Lautsprechers
+    digitalWrite(RelayPin, LOW);
+
     //Schreibe info auf Serial wenn im DebugMode
     if (debugMode) {
-      Serial.println("Kopfhörer Verbunden, Wert:");
+      Serial.println("Kopfhörer Verbunden, Wert:" + String(headphoneStatus) );
     }
   }
-  //Wenn kein Kophörer eingesteckt ist ... 
+  //Wenn kein Kophörer eingesteckt ist ...
   else {
     //schalte Relay ein - Lautsprecher ist verbunden
-      digitalWrite(RelayPin, HIGH);
-    //Schreibe info auf Serial wenn im debugmode 
+    digitalWrite(RelayPin, HIGH);
+    //Schreibe info auf Serial wenn im debugmode
     if (debugMode) {
-      Serial.println("Kopfhörer NICHT Verbunden, Wert:");
+      Serial.println("Kopfhörer NICHT Verbunden, Wert:" + String(headphoneStatus));
     }
   }
 
@@ -158,7 +166,7 @@ void loop() {
     Serial.println(result);
   }
   if (result > threshold) {
-    player.play(1);
+    playTrackSetData(1);
   }
 
   result =  CapSensor2.capacitiveSensor(sensitivity);
@@ -168,9 +176,9 @@ void loop() {
     Serial.println(result);
   }
   if (result > threshold) {
-    player.play(2);
+    playTrackSetData(2);
   }
-
+  //
   result =  CapSensor3.capacitiveSensor(sensitivity);
   //Zeige den Messwert des Sensors im Serial Monitor
   if (debugMode) {
@@ -178,7 +186,7 @@ void loop() {
     Serial.println(result);
   }
   if (result > threshold) {
-    player.play(1);
+    playTrackSetData(3);
   }
   result =  CapSensor4.capacitiveSensor(sensitivity);
   //Zeige den Messwert des Sensors im Serial Monitor
@@ -187,30 +195,30 @@ void loop() {
     Serial.println(result);
   }
   if (result > threshold) {
-    player.play(2);
+    playTrackSetData(4);
   }
 
 
 
 
-  //    result =  CapSensor5.capacitiveSensor(sensitivity);
-  //  //Zeige den Messwert des Sensors im Serial Monitor
-  //  if (debugMode) {
-  //    Serial.print("Sensor 5 misst: ");
-  //    Serial.println(result);
-  //  }
-  //  if (result > threshold) {
-  //    player.play(5);
-  //  }
-  //    result =  CapSensor6.capacitiveSensor(sensitivity);
-  //  //Zeige den Messwert des Sensors im Serial Monitor
-  //  if (debugMode) {
-  //    Serial.print("Sensor 6 misst: ");
-  //    Serial.println(result);
-  //  }
-  //  if (result > threshold) {
-  //    player.play(2);
-  //  }
+  result =  CapSensor5.capacitiveSensor(sensitivity);
+  //Zeige den Messwert des Sensors im Serial Monitor
+  if (debugMode) {
+    Serial.print("Sensor 5 misst: ");
+    Serial.println(result);
+  }
+  if (result > threshold) {
+    playTrackSetData(5);
+  }
+  result =  CapSensor6.capacitiveSensor(sensitivity);
+  //Zeige den Messwert des Sensors im Serial Monitor
+  if (debugMode) {
+    Serial.print("Sensor 6 misst: ");
+    Serial.println(result);
+  }
+  if (result > threshold) {
+    playTrackSetData(6);
+  }
   //    result =  CapSensor7.capacitiveSensor(sensitivity);
   //  //Zeige den Messwert des Sensors im Serial Monitor
   //  if (debugMode) {
@@ -218,7 +226,7 @@ void loop() {
   //    Serial.println(result);
   //  }
   //  if (result > threshold) {
-  //    player.play(7);
+  //    playTrackSetData(7);
   //  }
   //    result =  CapSensor8.capacitiveSensor(sensitivity);
   //  //Zeige den Messwert des Sensors im Serial Monitor
@@ -227,7 +235,7 @@ void loop() {
   //    Serial.println(result);
   //  }
   //  if (result > threshold) {
-  //    player.play(8);
+  //    playTrackSetData(8);
   //  }
   //    result =  CapSensor9.capacitiveSensor(sensitivity);
   //  //Zeige den Messwert des Sensors im Serial Monitor
@@ -236,7 +244,7 @@ void loop() {
   //    Serial.println(result);
   //  }
   //  if (result > threshold) {
-  //    player.play(9);
+  //    playTrackSetData(9);
   //  }
   //    result =  CapSensor10.capacitiveSensor(sensitivity);
   //  //Zeige den Messwert des Sensors im Serial Monitor
@@ -245,7 +253,27 @@ void loop() {
   //    Serial.println(result);
   //  }
   //  if (result > threshold) {
-  //    player.play(10);
+  //    playTrackSetData(10);
   //  }
   delay(10);
+}
+
+//spielt eine datei und setzt/prüft entsprechende variablen
+void playTrackSetData(int num) {
+  long currentTime = millis();
+  //spiele nur einen track wenn es ein anderer track ist oder seit dem letzten abspielen genug Zeit vergangen ist
+  if (num != lastPlayed || currentTime > (lastPlayTime + repeatPlayDelay)) {
+    player.play(num);
+    //setze variablen neu
+    lastPlayed = num;
+    lastPlayTime = currentTime;
+    Serial.print("Playing track: ");
+    Serial.println(num);
+  }
+  else if (debugMode) {
+    Serial.println("Blocked repeat play");
+  }
+
+
+
 }
