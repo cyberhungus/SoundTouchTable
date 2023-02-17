@@ -4,35 +4,35 @@
 #include <CapacitiveSensor.h>
 
 //dient zum an und ausschalten von debug-messages am Serial
-const bool debugMode = true;
+const bool debugMode = false;
 
 
 // Player-Objekt erstellen
 DFRobotDFPlayerMini player;
 
 //Welche Pins sind SensorPins für den Input (const = nicht zur Laufzeit änderbar, braucht weniger speicher)
-static const int SensorPinInput1 = 52;
-static const int SensorPinInput2 = 50;
-static const int SensorPinInput3 = 48;
-static const int SensorPinInput4 = 46;
-static const int SensorPinInput5 = 44;
-static const int SensorPinInput6 = 51;
-static const int SensorPinInput7 = 49;
-static const int SensorPinInput8 = 47;
-static const int SensorPinInput9 = 53;
-static const int SensorPinInput10 = 45;
+static const int SensorPinInput1 = 51;
+static const int SensorPinInput2 = 49;
+static const int SensorPinInput3 = 47;
+static const int SensorPinInput4 = 45;
+static const int SensorPinInput5 = 43;
+static const int SensorPinInput6 = 41;
+static const int SensorPinInput7 = 39;
+static const int SensorPinInput8 = 37;
+static const int SensorPinInput9 = 35;
+static const int SensorPinInput10 = 33;
 
 
 
 
 //Welcher Pin ist der SensorPin für Output (Wo der Widerstand dran ist)
-static const int SensorPinOutputA = 7;
+static const int SensorPinOutputA = 53;
 static const int SensorPinOutputB = 6;
 
 //Welche Pins zur Steuerung der Volume Sensoren?
-static const int SensorPinVolUp = 29;
-static const int SensorPinVolDown = 30;
-static const int SensorPinVolOutput = 4;
+static const int SensorPinVolUp = 35;
+static const int SensorPinVolDown = 33;
+static const int SensorPinVolOutput = 53;
 
 //Erzeuge SensorObjekte mit den oben definierten Pins
 CapacitiveSensor CapSensor1 = CapacitiveSensor(SensorPinOutputA, SensorPinInput1);
@@ -40,11 +40,11 @@ CapacitiveSensor CapSensor2 = CapacitiveSensor(SensorPinOutputA, SensorPinInput2
 CapacitiveSensor CapSensor3 = CapacitiveSensor(SensorPinOutputA, SensorPinInput3);
 CapacitiveSensor CapSensor4 = CapacitiveSensor(SensorPinOutputA, SensorPinInput4);
 CapacitiveSensor CapSensor5 = CapacitiveSensor(SensorPinOutputA, SensorPinInput5);
-CapacitiveSensor CapSensor6 = CapacitiveSensor(SensorPinOutputB, SensorPinInput6);
-CapacitiveSensor CapSensor7 = CapacitiveSensor(SensorPinOutputB, SensorPinInput7);
-CapacitiveSensor CapSensor8 = CapacitiveSensor(SensorPinOutputB, SensorPinInput8);
-CapacitiveSensor CapSensor9 = CapacitiveSensor(SensorPinOutputB, SensorPinInput9);
-CapacitiveSensor CapSensor10 = CapacitiveSensor(SensorPinOutputB, SensorPinInput10);
+CapacitiveSensor CapSensor6 = CapacitiveSensor(SensorPinOutputA, SensorPinInput6);
+CapacitiveSensor CapSensor7 = CapacitiveSensor(SensorPinOutputA, SensorPinInput7);
+CapacitiveSensor CapSensor8 = CapacitiveSensor(SensorPinOutputA, SensorPinInput8);
+CapacitiveSensor CapSensor9 = CapacitiveSensor(SensorPinOutputA, SensorPinInput9);
+CapacitiveSensor CapSensor10 = CapacitiveSensor(SensorPinOutputA, SensorPinInput10);
 
 CapacitiveSensor CapSensorVolUp = CapacitiveSensor(SensorPinVolOutput, SensorPinVolUp);
 CapacitiveSensor CapSensorVolDown = CapacitiveSensor(SensorPinVolOutput, SensorPinVolDown);
@@ -64,10 +64,10 @@ static const int RelayPin = 8;
 int volume = 10;
 
 //globale sensitivity variable für capacitive sensors
-int sensitivity = 1;
+int sensitivity = 15;
 
 //globale grenzwert variable für das auslösen des abspielens
-int threshold = 200;
+int threshold = 100;
 
 //speichert den zuletzt abgespielten track um doppeltes abspielen zu verhindern (-1 = nicht vorhanden, also bei init immer jeder track spielbar)
 int lastPlayed = -1;
@@ -89,11 +89,12 @@ void setup() {
 
   //Normaler Serial-Port für Kommunikation von Arduino und Computer
   //Diese (Baud)Zahl muss beim Serial-Monitor angegeben werden, um Debug-Messages zu sehen
-  Serial.begin(115200);
-  //Printe Willkommensnachricht
-  Serial.println("System Startet, Gruesse von Moritz");
+  if (debugMode) {
+    Serial.begin(1000000);
+    //Printe Willkommensnachricht
+    Serial.println("System Startet, Gruesse von Moritz");
 
-
+  }
   //Virtueller Serialport für Kommunikation von Arduino und DFPLAYER
   Serial3.begin(9600);
 
@@ -106,6 +107,7 @@ void setup() {
     Serial.println("DFPLAYER wurde gefunden, es kann losgehen!");
 
     player.volume(volume);
+    delay(10);
 
   } else {
     //wenn ein fehler auftritt
@@ -129,6 +131,8 @@ void setup() {
 }
 
 void loop() {
+
+
   //lese headphonepin - wenn der headphonepin eine spannung unter dem grenzwert erkennt ist ein Kopfhörer angeschlossen
   int headphoneStatus = analogRead(HeadphonePin);
   //Wenn der kopfhörer eingesteckt ist ...
@@ -150,7 +154,7 @@ void loop() {
       Serial.println("Kopfhörer NICHT Verbunden, Wert:" + String(headphoneStatus));
     }
   }
-
+  //
   //Prüft den zustand des Kapazitiven Sensors - sensitivity ist ein wert zur Änderung der Empfindlichkeit
   long result =  CapSensor1.capacitiveSensor(sensitivity);
   //Zeige den Messwert des Sensors im Serial Monitor
@@ -230,46 +234,46 @@ void loop() {
   if (result > threshold) {
     playTrackSetData(8);
   }
-  result =  CapSensor9.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 9 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(9);
-  }
-  result =  CapSensor10.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 10 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(10);
-  }
-  result =  CapSensorVolUp.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor VolUp misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    volumePlus();
-  }
-
-    result =  CapSensorVolDown.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor VolDown misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    volumeMinus();
-  }
-  delay(10);
+//  result =  CapSensor9.capacitiveSensor(sensitivity);
+//  //Zeige den Messwert des Sensors im Serial Monitor
+//  if (debugMode) {
+//    Serial.print("Sensor 9 misst: ");
+//    Serial.println(result);
+//  }
+//  if (result > threshold) {
+//    playTrackSetData(9);
+//  }
+//  result =  CapSensor10.capacitiveSensor(sensitivity);
+//  //Zeige den Messwert des Sensors im Serial Monitor
+//  if (debugMode) {
+//    Serial.print("Sensor 10 misst: ");
+//    Serial.println(result);
+//  }
+//  if (result > threshold) {
+//    playTrackSetData(10);
+//  }
+    result =  CapSensorVolUp.capacitiveSensor(sensitivity);
+    //Zeige den Messwert des Sensors im Serial Monitor
+    if (debugMode) {
+      Serial.print("Sensor VolUp misst: ");
+      Serial.println(result);
+    }
+    if (result > threshold) {
+      volumePlus();
+    }
+  
+      result =  CapSensorVolDown.capacitiveSensor(sensitivity);
+    //Zeige den Messwert des Sensors im Serial Monitor
+    if (debugMode) {
+      Serial.print("Sensor VolDown misst: ");
+      Serial.println(result);
+    }
+    if (result > threshold) {
+      volumeMinus();
+    }
+  delay(1);
 }
-//Funktion zur erhöhung der Lautstärke 
+//Funktion zur erhöhung der Lautstärke
 void volumePlus() {
   long currentTime = millis();
   if (volume < 30 &&  currentTime > (lastControlTime + repeatControlDelay)) {
@@ -297,11 +301,16 @@ void playTrackSetData(int num) {
     //setze variablen neu
     lastPlayed = num;
     lastPlayTime = currentTime;
-    Serial.print("Playing track: ");
-    Serial.println(num);
+    if (debugMode) {
+      Serial.print("Playing track: ");
+      Serial.println(num);
+    }
   }
-  else if (debugMode) {
-    Serial.println("Blocked repeat play");
+  else if (num == lastPlayed || currentTime > (lastPlayTime + repeatPlayDelay)) {
+    player.pause();
+    if (debugMode) {
+      Serial.println("Stopped Playback");
+    }
   }
 
 
