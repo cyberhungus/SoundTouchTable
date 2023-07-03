@@ -252,31 +252,31 @@ void setup() {
 }
 
 void loop() {
-  //lese headphonepin - wenn der headphonepin eine spannung unter dem grenzwert erkennt ist ein Kopfhörer angeschlossen
-  int headphoneStatus = analogRead(HeadphonePin);
-  //Wenn der kopfhörer eingesteckt ist ...
-  if (headphoneStatus < HeadphoneThreshold) {
-    //... schalte Relay aus - Unterbreche Verbindung des Lautsprechers
-    //schalte blaue LED aus
-    digitalWrite(RelayPin, HIGH);
-    digitalWrite(blue, LOW);
-
-    //Schreibe info auf Serial wenn im DebugMode
-    if (debugMode) {
-      Serial.println("Kopfhörer Verbunden, Wert:" + String(headphoneStatus) );
-    }
-  }
-  //Wenn kein Kophörer eingesteckt ist ...
-  else {
-    //schalte Relay ein - Lautsprecher ist verbunden
-    //schalte blau an
-    digitalWrite(RelayPin, LOW);
-    digitalWrite(blue, HIGH);
-    //Schreibe info auf Serial wenn im debugmode
-    if (debugMode) {
-      Serial.println("Kopfhörer NICHT Verbunden, Wert:" + String(headphoneStatus));
-    }
-  }
+//  //lese headphonepin - wenn der headphonepin eine spannung unter dem grenzwert erkennt ist ein Kopfhörer angeschlossen
+//  int headphoneStatus = analogRead(HeadphonePin);
+//  //Wenn der kopfhörer eingesteckt ist ...
+//  if (headphoneStatus < HeadphoneThreshold) {
+//    //... schalte Relay aus - Unterbreche Verbindung des Lautsprechers
+//    //schalte blaue LED aus
+//    digitalWrite(RelayPin, HIGH);
+//    digitalWrite(blue, LOW);
+//
+//    //Schreibe info auf Serial wenn im DebugMode
+//    if (debugMode) {
+//      Serial.println("Kopfhörer Verbunden, Wert:" + String(headphoneStatus) );
+//    }
+//  }
+//  //Wenn kein Kophörer eingesteckt ist ...
+//  else {
+//    //schalte Relay ein - Lautsprecher ist verbunden
+//    //schalte blau an
+//    digitalWrite(RelayPin, LOW);
+//    digitalWrite(blue, HIGH);
+//    //Schreibe info auf Serial wenn im debugmode
+//    if (debugMode) {
+//      Serial.println("Kopfhörer NICHT Verbunden, Wert:" + String(headphoneStatus));
+//    }
+//  }
 
   int busyState = digitalRead(busy);
   if (debugMode) {
