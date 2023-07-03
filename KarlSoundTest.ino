@@ -12,60 +12,60 @@ const bool debugMode = true;
 
 // forward declare the notify class, just the name
 //
-class Mp3Notify; 
+class Mp3Notify;
 
 // define a handy type using serial and our notify class
 //
-typedef DFMiniMp3<HardwareSerial, Mp3Notify> DfMp3; 
+typedef DFMiniMp3<HardwareSerial, Mp3Notify> DfMp3;
 
-// instance a DfMp3 object, 
+// instance a DfMp3 object,
 //
 DfMp3 player(Serial3);
 
 
 class Mp3Notify
 {
-public:
-  static void PrintlnSourceAction(DfMp3_PlaySources source, const char* action)
-  {
-    if (source & DfMp3_PlaySources_Sd) 
+  public:
+    static void PrintlnSourceAction(DfMp3_PlaySources source, const char* action)
     {
+      if (source & DfMp3_PlaySources_Sd)
+      {
         Serial.print("SD Card, ");
-    }
-    if (source & DfMp3_PlaySources_Usb) 
-    {
+      }
+      if (source & DfMp3_PlaySources_Usb)
+      {
         Serial.print("USB Disk, ");
-    }
-    if (source & DfMp3_PlaySources_Flash) 
-    {
+      }
+      if (source & DfMp3_PlaySources_Flash)
+      {
         Serial.print("Flash, ");
+      }
+      Serial.println(action);
     }
-    Serial.println(action);
-  }
-  static void OnError([[maybe_unused]] DfMp3& mp3, uint16_t errorCode)
-  {
-    // see DfMp3_Error for code meaning
-    Serial.println();
-    Serial.print("Com Error ");
-    Serial.println(errorCode);
-  }
-  static void OnPlayFinished([[maybe_unused]] DfMp3& mp3, [[maybe_unused]] DfMp3_PlaySources source, uint16_t track)
-  {
-    Serial.print("Play finished for #");
-    Serial.println(track);  
-  }
-  static void OnPlaySourceOnline([[maybe_unused]] DfMp3& mp3, DfMp3_PlaySources source)
-  {
-    PrintlnSourceAction(source, "online");
-  }
-  static void OnPlaySourceInserted([[maybe_unused]] DfMp3& mp3, DfMp3_PlaySources source)
-  {
-    PrintlnSourceAction(source, "inserted");
-  }
-  static void OnPlaySourceRemoved([[maybe_unused]] DfMp3& mp3, DfMp3_PlaySources source)
-  {
-    PrintlnSourceAction(source, "removed");
-  }
+    static void OnError([[maybe_unused]] DfMp3& mp3, uint16_t errorCode)
+    {
+      // see DfMp3_Error for code meaning
+      Serial.println();
+      Serial.print("Com Error ");
+      Serial.println(errorCode);
+    }
+    static void OnPlayFinished([[maybe_unused]] DfMp3& mp3, [[maybe_unused]] DfMp3_PlaySources source, uint16_t track)
+    {
+      Serial.print("Play finished for #");
+      Serial.println(track);
+    }
+    static void OnPlaySourceOnline([[maybe_unused]] DfMp3& mp3, DfMp3_PlaySources source)
+    {
+      PrintlnSourceAction(source, "online");
+    }
+    static void OnPlaySourceInserted([[maybe_unused]] DfMp3& mp3, DfMp3_PlaySources source)
+    {
+      PrintlnSourceAction(source, "inserted");
+    }
+    static void OnPlaySourceRemoved([[maybe_unused]] DfMp3& mp3, DfMp3_PlaySources source)
+    {
+      PrintlnSourceAction(source, "removed");
+    }
 };
 
 
@@ -77,23 +77,23 @@ static const int SensorPinInput4 = 43;
 static const int SensorPinInput5 = 36;
 static const int SensorPinInput6 = 37;
 static const int SensorPinInput7 = 38;
-static const int SensorPinInput8 = 39;
-static const int SensorPinInput9 = 31;
-static const int SensorPinInput10 = 32;
-static const int SensorPinInput11 = 33;
-static const int SensorPinInput12 = 34;
-static const int SensorPinInput13 = 27;
-static const int SensorPinInput14 = 28;
-static const int SensorPinInput15 = 29;
-static const int SensorPinInput16 = 30;
-static const int SensorPinInput17 = 23;
-static const int SensorPinInput18 = 24;
-static const int SensorPinInput19 = 25;
-static const int SensorPinInput20 = 26;
-static const int SensorPinInput21 = 50;
-static const int SensorPinInput22 = 49;
-static const int SensorPinInput23 = 48;
-static const int SensorPinInput24 = 47;
+//static const int SensorPinInput8 = 39;
+//static const int SensorPinInput9 = 31;
+//static const int SensorPinInput10 = 32;
+//static const int SensorPinInput11 = 33;
+//static const int SensorPinInput12 = 34;
+//static const int SensorPinInput13 = 27;
+//static const int SensorPinInput14 = 28;
+//static const int SensorPinInput15 = 29;
+//static const int SensorPinInput16 = 30;
+//static const int SensorPinInput17 = 23;
+//static const int SensorPinInput18 = 24;
+//static const int SensorPinInput19 = 25;
+//static const int SensorPinInput20 = 26;
+//static const int SensorPinInput21 = 50;
+//static const int SensorPinInput22 = 49;
+//static const int SensorPinInput23 = 48;
+//static const int SensorPinInput24 = 47;
 
 
 //Welcher Pin ist der SensorPin für Output (Wo der Widerstand dran ist)
@@ -118,29 +118,29 @@ CapacitiveSensor CapSensor4 = CapacitiveSensor(SensorPinOutputA, SensorPinInput4
 CapacitiveSensor CapSensor5 = CapacitiveSensor(SensorPinOutputB, SensorPinInput5);
 CapacitiveSensor CapSensor6 = CapacitiveSensor(SensorPinOutputB, SensorPinInput6);
 CapacitiveSensor CapSensor7 = CapacitiveSensor(SensorPinOutputB, SensorPinInput7);
-CapacitiveSensor CapSensor8 = CapacitiveSensor(SensorPinOutputB, SensorPinInput8);
+//CapacitiveSensor CapSensor8 = CapacitiveSensor(SensorPinOutputB, SensorPinInput8);
+//
+//CapacitiveSensor CapSensor9 = CapacitiveSensor(SensorPinOutputC, SensorPinInput9);
+//CapacitiveSensor CapSensor10 = CapacitiveSensor(SensorPinOutputC, SensorPinInput10);
+//CapacitiveSensor CapSensor11 = CapacitiveSensor(SensorPinOutputC, SensorPinInput11);
+//CapacitiveSensor CapSensor12 = CapacitiveSensor(SensorPinOutputC, SensorPinInput12);
+//
+//CapacitiveSensor CapSensor13 = CapacitiveSensor(SensorPinOutputD, SensorPinInput13);
+//CapacitiveSensor CapSensor14 = CapacitiveSensor(SensorPinOutputD, SensorPinInput14);
+//CapacitiveSensor CapSensor15 = CapacitiveSensor(SensorPinOutputD, SensorPinInput15);
+//CapacitiveSensor CapSensor16 = CapacitiveSensor(SensorPinOutputD, SensorPinInput16);
+//
+//CapacitiveSensor CapSensor17 = CapacitiveSensor(SensorPinOutputE, SensorPinInput17);
+//CapacitiveSensor CapSensor18 = CapacitiveSensor(SensorPinOutputE, SensorPinInput18);
+//CapacitiveSensor CapSensor19 = CapacitiveSensor(SensorPinOutputE, SensorPinInput19);
+//CapacitiveSensor CapSensor20 = CapacitiveSensor(SensorPinOutputE, SensorPinInput20);
+//
+//CapacitiveSensor CapSensor21 = CapacitiveSensor(SensorPinOutputF, SensorPinInput21);
+//CapacitiveSensor CapSensor22 = CapacitiveSensor(SensorPinOutputF, SensorPinInput22);
+//CapacitiveSensor CapSensor23 = CapacitiveSensor(SensorPinOutputF, SensorPinInput23);
+//CapacitiveSensor CapSensor24 = CapacitiveSensor(SensorPinOutputF, SensorPinInput24);
 
-CapacitiveSensor CapSensor9 = CapacitiveSensor(SensorPinOutputC, SensorPinInput9);
-CapacitiveSensor CapSensor10 = CapacitiveSensor(SensorPinOutputC, SensorPinInput10);
-CapacitiveSensor CapSensor11 = CapacitiveSensor(SensorPinOutputC, SensorPinInput11);
-CapacitiveSensor CapSensor12 = CapacitiveSensor(SensorPinOutputC, SensorPinInput12);
-
-CapacitiveSensor CapSensor13 = CapacitiveSensor(SensorPinOutputD, SensorPinInput13);
-CapacitiveSensor CapSensor14 = CapacitiveSensor(SensorPinOutputD, SensorPinInput14);
-CapacitiveSensor CapSensor15 = CapacitiveSensor(SensorPinOutputD, SensorPinInput15);
-CapacitiveSensor CapSensor16 = CapacitiveSensor(SensorPinOutputD, SensorPinInput16);
-
-CapacitiveSensor CapSensor17 = CapacitiveSensor(SensorPinOutputE, SensorPinInput17);
-CapacitiveSensor CapSensor18 = CapacitiveSensor(SensorPinOutputE, SensorPinInput18);
-CapacitiveSensor CapSensor19 = CapacitiveSensor(SensorPinOutputE, SensorPinInput19);
-CapacitiveSensor CapSensor20 = CapacitiveSensor(SensorPinOutputE, SensorPinInput20);
-
-CapacitiveSensor CapSensor21 = CapacitiveSensor(SensorPinOutputF, SensorPinInput21);
-CapacitiveSensor CapSensor22 = CapacitiveSensor(SensorPinOutputF, SensorPinInput22);
-CapacitiveSensor CapSensor23 = CapacitiveSensor(SensorPinOutputF, SensorPinInput23);
-CapacitiveSensor CapSensor24 = CapacitiveSensor(SensorPinOutputF, SensorPinInput24);
-
-//definiere sensorobjekte für volume 
+//definiere sensorobjekte für volume
 CapacitiveSensor CapSensorVolUp = CapacitiveSensor(SensorPinVolOutput, SensorPinVolUp);
 CapacitiveSensor CapSensorVolDown = CapacitiveSensor(SensorPinVolOutput, SensorPinVolDown);
 
@@ -225,7 +225,7 @@ void setup() {
     //schalte gelb aus, grün an
     digitalWrite(yellow, LOW);
     digitalWrite(green, HIGH);
-    player.playGlobalTrack(1);
+    //player.playGlobalTrack(1);
 
   } else {
     //wenn ein fehler auftritt
@@ -357,171 +357,171 @@ void loop() {
   if (result > threshold) {
     playTrackSetData(7);
   }
-  result =  CapSensor8.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 8 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(8);
-  }
-  result =  CapSensor9.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 9 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(9);
-  }
-  result =  CapSensor10.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 10 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(10);
-  }
-
- result =  CapSensor11.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 11 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(11);
-  }
-
-  result =  CapSensor12.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 12 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(12);
-  }
+  //  result =  CapSensor8.capacitiveSensor(sensitivity);
+  //  //Zeige den Messwert des Sensors im Serial Monitor
+  //  if (debugMode) {
+  //    Serial.print("Sensor 8 misst: ");
+  //    Serial.println(result);
+  //  }
+  //  if (result > threshold) {
+  //    playTrackSetData(8);
+  //  }
+  //  result =  CapSensor9.capacitiveSensor(sensitivity);
+  //  //Zeige den Messwert des Sensors im Serial Monitor
+  //  if (debugMode) {
+  //    Serial.print("Sensor 9 misst: ");
+  //    Serial.println(result);
+  //  }
+  //  if (result > threshold) {
+  //    playTrackSetData(9);
+  //  }
+  //  result =  CapSensor10.capacitiveSensor(sensitivity);
+  //  //Zeige den Messwert des Sensors im Serial Monitor
+  //  if (debugMode) {
+  //    Serial.print("Sensor 10 misst: ");
+  //    Serial.println(result);
+  //  }
+  //  if (result > threshold) {
+  //    playTrackSetData(10);
+  //  }
   //
-  result =  CapSensor13.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 13 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(13);
-  }
-  result =  CapSensor14.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 14 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(14);
-  }
+  // result =  CapSensor11.capacitiveSensor(sensitivity);
+  //  //Zeige den Messwert des Sensors im Serial Monitor
+  //  if (debugMode) {
+  //    Serial.print("Sensor 11 misst: ");
+  //    Serial.println(result);
+  //  }
+  //  if (result > threshold) {
+  //    playTrackSetData(11);
+  //  }
+  //
+  //  result =  CapSensor12.capacitiveSensor(sensitivity);
+  //  //Zeige den Messwert des Sensors im Serial Monitor
+  //  if (debugMode) {
+  //    Serial.print("Sensor 12 misst: ");
+  //    Serial.println(result);
+  //  }
+  //  if (result > threshold) {
+  //    playTrackSetData(12);
+  //  }
+  //  //
+  //  result =  CapSensor13.capacitiveSensor(sensitivity);
+  //  //Zeige den Messwert des Sensors im Serial Monitor
+  //  if (debugMode) {
+  //    Serial.print("Sensor 13 misst: ");
+  //    Serial.println(result);
+  //  }
+  //  if (result > threshold) {
+  //    playTrackSetData(13);
+  //  }
+  //  result =  CapSensor14.capacitiveSensor(sensitivity);
+  //  //Zeige den Messwert des Sensors im Serial Monitor
+  //  if (debugMode) {
+  //    Serial.print("Sensor 14 misst: ");
+  //    Serial.println(result);
+  //  }
+  //  if (result > threshold) {
+  //    playTrackSetData(14);
+  //  }
+  //
+  //
+  //
+  //
+  //  result =  CapSensor15.capacitiveSensor(sensitivity);
+  //  //Zeige den Messwert des Sensors im Serial Monitor
+  //  if (debugMode) {
+  //    Serial.print("Sensor 15 misst: ");
+  //    Serial.println(result);
+  //  }
+  //  if (result > threshold) {
+  //    playTrackSetData(15);
+  //  }
+  //  result =  CapSensor16.capacitiveSensor(sensitivity);
+  //  //Zeige den Messwert des Sensors im Serial Monitor
+  //  if (debugMode) {
+  //    Serial.print("Sensor 16 misst: ");
+  //    Serial.println(result);
+  //  }
+  //  if (result > threshold) {
+  //    playTrackSetData(16);
+  //  }
+  //  result =  CapSensor17.capacitiveSensor(sensitivity);
+  //  //Zeige den Messwert des Sensors im Serial Monitor
+  //  if (debugMode) {
+  //    Serial.print("Sensor 17 misst: ");
+  //    Serial.println(result);
+  //  }
+  //  if (result > threshold) {
+  //    playTrackSetData(17);
+  //  }
+  //  result =  CapSensor18.capacitiveSensor(sensitivity);
+  //  //Zeige den Messwert des Sensors im Serial Monitor
+  //  if (debugMode) {
+  //    Serial.print("Sensor 18 misst: ");
+  //    Serial.println(result);
+  //  }
+  //  if (result > threshold) {
+  //    playTrackSetData(18);
+  //  }
+  //  result =  CapSensor19.capacitiveSensor(sensitivity);
+  //  //Zeige den Messwert des Sensors im Serial Monitor
+  //  if (debugMode) {
+  //    Serial.print("Sensor 19 misst: ");
+  //    Serial.println(result);
+  //  }
+  //  if (result > threshold) {
+  //    playTrackSetData(19);
+  //  }
+  //  result =  CapSensor20.capacitiveSensor(sensitivity);
+  //  //Zeige den Messwert des Sensors im Serial Monitor
+  //  if (debugMode) {
+  //    Serial.print("Sensor 20 misst: ");
+  //    Serial.println(result);
+  //  }
+  //  if (result > threshold) {
+  //    playTrackSetData(20);
+  //  }
+  //result =  CapSensor21.capacitiveSensor(sensitivity);
+  //  //Zeige den Messwert des Sensors im Serial Monitor
+  //  if (debugMode) {
+  //    Serial.print("Sensor 21 misst: ");
+  //    Serial.println(result);
+  //  }
+  //  if (result > threshold) {
+  //    playTrackSetData(21);
+  //  }
+  //  result =  CapSensor22.capacitiveSensor(sensitivity);
+  //  //Zeige den Messwert des Sensors im Serial Monitor
+  //  if (debugMode) {
+  //    Serial.print("Sensor 22 misst: ");
+  //    Serial.println(result);
+  //  }
+  //  if (result > threshold) {
+  //    playTrackSetData(22);
+  //  }
+  //  result =  CapSensor23.capacitiveSensor(sensitivity);
+  //  //Zeige den Messwert des Sensors im Serial Monitor
+  //  if (debugMode) {
+  //    Serial.print("Sensor 23 misst: ");
+  //    Serial.println(result);
+  //  }
+  //  if (result > threshold) {
+  //    playTrackSetData(23);
+  //  }
+  //  result =  CapSensor24.capacitiveSensor(sensitivity);
+  //  //Zeige den Messwert des Sensors im Serial Monitor
+  //  if (debugMode) {
+  //    Serial.print("Sensor 20 misst: ");
+  //    Serial.println(result);
+  //  }
+  //  if (result > threshold) {
+  //    playTrackSetData(24);
+  //  }
+  //
+  //
+  //
 
 
-
-
-  result =  CapSensor15.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 15 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(15);
-  }
-  result =  CapSensor16.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 16 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(16);
-  }
-  result =  CapSensor17.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 17 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(17);
-  }
-  result =  CapSensor18.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 18 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(18);
-  }
-  result =  CapSensor19.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 19 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(19);
-  }
-  result =  CapSensor20.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 20 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(20);
-  }
-result =  CapSensor21.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 21 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(21);
-  }
-  result =  CapSensor22.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 22 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(22);
-  }
-  result =  CapSensor23.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 23 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(23);
-  }
-  result =  CapSensor24.capacitiveSensor(sensitivity);
-  //Zeige den Messwert des Sensors im Serial Monitor
-  if (debugMode) {
-    Serial.print("Sensor 20 misst: ");
-    Serial.println(result);
-  }
-  if (result > threshold) {
-    playTrackSetData(24);
-  }
-
-
-
-
-  
   result =  CapSensorVolUp.capacitiveSensor(sensitivity);
   //Zeige den Messwert des Sensors im Serial Monitor
   if (debugMode) {
