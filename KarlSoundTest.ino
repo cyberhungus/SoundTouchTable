@@ -4,7 +4,7 @@
 #include <CapacitiveSensor.h>
 
 //dient zum an und ausschalten von debug-messages am Serial
-const bool debugMode = true;
+const bool debugMode = false;
 
 
 // Player-Objekt erstellen
@@ -150,7 +150,7 @@ CapacitiveSensor CapSensorVolDown = CapacitiveSensor(SensorPinVolOutput, SensorP
 static const int HeadphonePin = A2;
 
 //grenzwert zur ermittlung des Mikrofonstatus
-static const int HeadphoneThreshold = 10;
+static const int HeadphoneThreshold = 100;
 
 //pin an dem das Relais zur Steuerung des Lautsprecheroutputs angeschlossen wird
 static const int RelayPin = 8;
@@ -165,7 +165,7 @@ static const int yellow = 19;
 static const int busy = 10;
 
 //diese variable speichert den lautstärkewert falls er zb über einen drehregler änderbar sein soll
-int volume = 25;
+int volume = 20;
 
 //globale sensitivity variable für capacitive sensors
 int sensitivity = 1;
@@ -190,7 +190,16 @@ long lastControlTime = -1;
 int repeatControlDelay = 300;
 
 
+//int array enthält letzte Kopfhörer-Werte 
+int headphoneValues[10];
+
+//int zum iterieren über das headphoneValue array
+int headphoneIterator = 0 ; 
+
+
 void setup() {
+
+  headpgo
   //initialisiere LEDs
   pinMode(blue, OUTPUT);
   pinMode(red, OUTPUT);
@@ -248,40 +257,41 @@ void setup() {
   //setze relay auf "an"
   digitalWrite(RelayPin, LOW );
   delay(1000);
-  digitalWrite(RelayPin, HIGH);
+ // digitalWrite(RelayPin, HIGH);
 }
 
 void loop() {
-//  //lese headphonepin - wenn der headphonepin eine spannung unter dem grenzwert erkennt ist ein Kopfhörer angeschlossen
-//  int headphoneStatus = analogRead(HeadphonePin);
-//  //Wenn der kopfhörer eingesteckt ist ...
-//  if (headphoneStatus < HeadphoneThreshold) {
-//    //... schalte Relay aus - Unterbreche Verbindung des Lautsprechers
-//    //schalte blaue LED aus
-//    digitalWrite(RelayPin, HIGH);
-//    digitalWrite(blue, LOW);
-//
-//    //Schreibe info auf Serial wenn im DebugMode
-//    if (debugMode) {
-//      Serial.println("Kopfhörer Verbunden, Wert:" + String(headphoneStatus) );
-//    }
-//  }
-//  //Wenn kein Kophörer eingesteckt ist ...
-//  else {
-//    //schalte Relay ein - Lautsprecher ist verbunden
-//    //schalte blau an
-//    digitalWrite(RelayPin, LOW);
-//    digitalWrite(blue, HIGH);
-//    //Schreibe info auf Serial wenn im debugmode
-//    if (debugMode) {
-//      Serial.println("Kopfhörer NICHT Verbunden, Wert:" + String(headphoneStatus));
-//    }
-//  }
+  //lese headphonepin - wenn der headphonepin eine spannung unter dem grenzwert erkennt ist ein Kopfhörer angeschlossen
+  int headphoneStatus = analogRead(HeadphonePin);
+  Serial.println(headphoneStatus);
+  //Wenn der kopfhörer eingesteckt ist ...
+  if (headphoneStatus < HeadphoneThreshold || headphoneStatus > 1000) {
+    //... schalte Relay aus - Unterbreche Verbindung des Lautsprechers
+    //schalte blaue LED aus
+    digitalWrite(RelayPin, HIGH);
+    digitalWrite(blue, LOW);
+
+    //Schreibe info auf Serial wenn im DebugMode
+    if (debugMode) {
+      Serial.println("Kopfhörer Verbunden, We nrt:" + String(headphoneStatus) );
+    }
+  }
+  //Wenn kein Kophörer eingesteckt ist ...
+  else {
+    //schalte Relay ein - Lautsprecher ist verbunden
+    //schalte blau an
+    digitalWrite(RelayPin, LOW);
+    digitalWrite(blue, HIGH);
+    //Schreibe info auf Serial wenn im debugmode
+    if (debugMode) {
+      Serial.println("Kopfhörer NICHT Verbunden, Wert:" + String(headphoneStatus));
+    }
+  }
 
   int busyState = digitalRead(busy);
   if (debugMode) {
-    Serial.print("Busy-Pin hat Status: ");
-    Serial.println(busyState);
+   // Serial.print("Busy-Pin hat Status: ");
+   // Serial.println(busyState);
   }
 
   digitalWrite(yellow, busyState);
@@ -525,8 +535,8 @@ void loop() {
   result =  CapSensorVolUp.capacitiveSensor(sensitivity);
   //Zeige den Messwert des Sensors im Serial Monitor
   if (debugMode) {
-    Serial.print("Sensor VolUp misst: ");
-    Serial.println(result);
+   // Serial.print("Sensor VolUp misst: ");
+   // Serial.println(result);
   }
   if (result > threshold) {
     volumePlus();
@@ -535,8 +545,8 @@ void loop() {
   result =  CapSensorVolDown.capacitiveSensor(sensitivity);
   //Zeige den Messwert des Sensors im Serial Monitor
   if (debugMode) {
-    Serial.print("Sensor VolDown misst: ");
-    Serial.println(result);
+   // Serial.print("Sensor VolDown misst: ");
+   //,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, Serial.println(result);
   }
   if (result > threshold) {
     volumeMinus();
@@ -547,7 +557,7 @@ void loop() {
 void volumePlus() {
   long currentTime = millis();
   if (volume < 30 &&  currentTime > (lastControlTime + repeatControlDelay)) {
-    volume++;
+    volume+=2;
     player.setVolume(volume);
     lastControlTime = currentTime;
   }
@@ -557,7 +567,7 @@ void volumePlus() {
 void volumeMinus() {
   long currentTime = millis();
   if (volume > 0 &&  currentTime > (lastControlTime + repeatControlDelay)) {
-    volume--;
+    volume-=2;
     player.setVolume(volume);
     lastControlTime = currentTime;
   }
@@ -567,13 +577,22 @@ void playTrackSetData(int num) {
   long currentTime = millis();
   //spiele nur einen track wenn es ein anderer track ist oder seit dem letzten abspielen genug Zeit vergangen ist
   if (num != lastPlayed || currentTime > (lastPlayTime + repeatPlayDelay)) {
-    player.playGlobalTrack(num);
+    player.playMp3FolderTrack(num);
     //setze variablen neu
     lastPlayed = num;
     lastPlayTime = currentTime;
     Serial.print("Playing track: ");
     Serial.println(num);
   }
+//  else if (num == lastPlayed || currentTime > (lastPlayTime + repeatPlayDelay)) {
+//    player.stop();
+//    //setze variablen neu
+//    lastPlayed = -1;
+//    lastPlayTime = currentTime;
+//    Serial.print("Stopping  ");
+//    
+//  }
+//  
   else if (debugMode) {
     Serial.println("Blocked repeat play");
   }
