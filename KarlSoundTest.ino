@@ -189,17 +189,20 @@ long lastControlTime = -1;
 //wie lange bis eine neue volume gesetzt werden kann (debounce)
 int repeatControlDelay = 300;
 
+//beschreibt die länge der liste, welche die kopfhörerwerte speichern soll.
+//VORSICHT - Liste mit länge "10" enthält Positionen 0 bis 9
+const int headphoneArraySize = 10 ;
 
-//int array enthält letzte Kopfhörer-Werte 
-int headphoneValues[10];
+//int array enthält letzte Kopfhörer-Werte
+int headphoneValues[headphoneArraySize];
 
 //int zum iterieren über das headphoneValue array
-int headphoneIterator = 0 ; 
+int headphoneIterator = 0 ;
 
 
 void setup() {
 
-  headpgo
+
   //initialisiere LEDs
   pinMode(blue, OUTPUT);
   pinMode(red, OUTPUT);
@@ -257,15 +260,31 @@ void setup() {
   //setze relay auf "an"
   digitalWrite(RelayPin, LOW );
   delay(1000);
- // digitalWrite(RelayPin, HIGH);
+  // digitalWrite(RelayPin, HIGH);
 }
 
 void loop() {
   //lese headphonepin - wenn der headphonepin eine spannung unter dem grenzwert erkennt ist ein Kopfhörer angeschlossen
   int headphoneStatus = analogRead(HeadphonePin);
-  Serial.println(headphoneStatus);
+  //speichere den aktuellen wert in der liste
+  headphoneValues[headphoneIterator] = headphoneStatus;
+  //sorge dafür, dass der wert des nächsten loops an der nächsten arrayposition gespeichert wird
+  // - Es sei denn, die Inkrementierung der Variable würde zu einer ungültigen arrayposition zeigen
+  if (headphoneIterator + 1 < headphoneArraySize) {
+    headphoneIterator++;
+  }
+  //sonst wird der nächste wert wieder auf position 0 gespeichert
+  else {
+    headphoneIterator = 0;
+  }
+  //führe kopfhörercheck durch 
+  bool headphoneAnalysis = headphoneArrayCheck();
+  if (debugMode){
+    Serial.print("Kopfhörer-Analysierer - "); 
+    Serial.println(headphoneAnalysis); 
+  }
   //Wenn der kopfhörer eingesteckt ist ...
-  if (headphoneStatus < HeadphoneThreshold || headphoneStatus > 1000) {
+  if (headphoneAnalysis == true) {
     //... schalte Relay aus - Unterbreche Verbindung des Lautsprechers
     //schalte blaue LED aus
     digitalWrite(RelayPin, HIGH);
@@ -273,7 +292,7 @@ void loop() {
 
     //Schreibe info auf Serial wenn im DebugMode
     if (debugMode) {
-      Serial.println("Kopfhörer Verbunden, We nrt:" + String(headphoneStatus) );
+      Serial.println("Kopfhörer Verbunden, Wert:" + String(headphoneStatus) );
     }
   }
   //Wenn kein Kophörer eingesteckt ist ...
@@ -290,8 +309,8 @@ void loop() {
 
   int busyState = digitalRead(busy);
   if (debugMode) {
-   // Serial.print("Busy-Pin hat Status: ");
-   // Serial.println(busyState);
+    // Serial.print("Busy-Pin hat Status: ");
+    // Serial.println(busyState);
   }
 
   digitalWrite(yellow, busyState);
@@ -535,8 +554,8 @@ void loop() {
   result =  CapSensorVolUp.capacitiveSensor(sensitivity);
   //Zeige den Messwert des Sensors im Serial Monitor
   if (debugMode) {
-   // Serial.print("Sensor VolUp misst: ");
-   // Serial.println(result);
+    // Serial.print("Sensor VolUp misst: ");
+    // Serial.println(result);
   }
   if (result > threshold) {
     volumePlus();
@@ -545,8 +564,8 @@ void loop() {
   result =  CapSensorVolDown.capacitiveSensor(sensitivity);
   //Zeige den Messwert des Sensors im Serial Monitor
   if (debugMode) {
-   // Serial.print("Sensor VolDown misst: ");
-   //,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, Serial.println(result);
+    // Serial.print("Sensor VolDown misst: ");
+    //,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, Serial.println(result);
   }
   if (result > threshold) {
     volumeMinus();
@@ -557,7 +576,7 @@ void loop() {
 void volumePlus() {
   long currentTime = millis();
   if (volume < 30 &&  currentTime > (lastControlTime + repeatControlDelay)) {
-    volume+=2;
+    volume += 2;
     player.setVolume(volume);
     lastControlTime = currentTime;
   }
@@ -567,7 +586,7 @@ void volumePlus() {
 void volumeMinus() {
   long currentTime = millis();
   if (volume > 0 &&  currentTime > (lastControlTime + repeatControlDelay)) {
-    volume-=2;
+    volume -= 2;
     player.setVolume(volume);
     lastControlTime = currentTime;
   }
@@ -584,19 +603,36 @@ void playTrackSetData(int num) {
     Serial.print("Playing track: ");
     Serial.println(num);
   }
-//  else if (num == lastPlayed || currentTime > (lastPlayTime + repeatPlayDelay)) {
-//    player.stop();
-//    //setze variablen neu
-//    lastPlayed = -1;
-//    lastPlayTime = currentTime;
-//    Serial.print("Stopping  ");
-//    
-//  }
-//  
+  //  else if (num == lastPlayed || currentTime > (lastPlayTime + repeatPlayDelay)) {
+  //    player.stop();
+  //    //setze variablen neu
+  //    lastPlayed = -1;
+  //    lastPlayTime = currentTime;
+  //    Serial.print("Stopping  ");
+  //
+  //  }
+  //
   else if (debugMode) {
     Serial.println("Blocked repeat play");
   }
+}
 
 
-
+//prüft wie viele werte des headphoneValues-Arrays auf das Verbunden-Sein eines kopfhörers hindeuten.  
+// VORSICHT - wenn das array noch nicht mit echten werten gefüllt ist, kann es zu falschen HeadphoneStatus kommen, aber da 10 loops nur einige MicroSekunden dauern sollten kein Problem 
+bool headphoneArrayCheck() {
+  int checkNumber = 0;
+  for (int i = 0; i < headphoneArraySize; i++) {
+    //wenn ein passender wert (entwerder kleiner 100 oder über 1000) gefunden werde inkrementiere checkNumber 
+    if (headphoneValues[i] < HeadphoneThreshold || headphoneValues[i] > 1000) {
+      checkNumber++; 
+    }
+  }
+  //wenn mehr als die hälfte der Arraypositionen auf den Kopfhörer hindeuten gebe wahr zurück, sonst falsch 
+  if (checkNumber > headphoneArraySize/2){
+    return true; 
+  }
+  else {
+    return false; 
+  }
 }
